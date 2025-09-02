@@ -49,7 +49,22 @@ export class PlacesService {
       }));
   }
 
-  removeUserPlace(place: Place) {}
+  removeUserPlace(place: Place) {
+    const prevPlaces = this.userPlaces();
+    if(prevPlaces.some(p => p.id === place.id)) {
+      this.userPlaces.set(prevPlaces.filter(p => p.id !== place.id));
+    }
+
+    return this.httpClient
+      .delete(this.backendUrl + '/user-places/' + place.id,)
+      .pipe(catchError((error) => {
+        console.log(error);
+        //send to analytics server
+        this.userPlaces.set(prevPlaces)
+        this.errorService.showError("Something went wrong! Please try again later.")
+        throw new Error("Something went wrong! Please try again later.");
+      }));
+  }
 
   private fetchPlaces(uri: string) {
     return this.httpClient

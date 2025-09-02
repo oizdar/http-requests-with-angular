@@ -38,4 +38,15 @@ export class UserPlacesComponent implements OnInit{
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe()); //technically not required but is a good practice is to always unsubscribe observables
   }
+
+  onSelectPlace(selectedPlace: Place) {
+    const subscription = this.placesService.removeUserPlace(selectedPlace)
+      .subscribe({
+        next: (resData) => {
+          console.log(resData);
+        }
+      })
+
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
 }
