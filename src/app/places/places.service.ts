@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Place } from './place.model';
 import { HttpClient } from "@angular/common/http";
 import { catchError, map, tap } from "rxjs";
+import { ErrorService } from "../shared/error.service";
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,10 @@ export class PlacesService {
 
   loadedUserPlaces = this.userPlaces.asReadonly();
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+    private errorService: ErrorService,
+  ) {}
   loadAvailablePlaces() {
     return this.fetchPlaces('/places');
   }
@@ -40,6 +44,7 @@ export class PlacesService {
         console.log(error);
         //send to analytics server
         this.userPlaces.set(prevPlaces)
+        this.errorService.showError("Something went wrong! Please try again later.")
         throw new Error("Something went wrong! Please try again later.");
       }));
   }
