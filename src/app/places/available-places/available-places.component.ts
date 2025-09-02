@@ -15,6 +15,7 @@ import { map } from "rxjs";
 })
 export class AvailablePlacesComponent implements OnInit {
   places = signal<Place[] | undefined>(undefined);
+  isFetching = signal(false);
 
   constructor(
     private httpClient: HttpClient,
@@ -23,6 +24,7 @@ export class AvailablePlacesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isFetching.set(true);
     const subscription = this.httpClient
       .get<{places: Place[]}>("http://localhost:3000/places", {
         // observe: 'response' // to get full HttpResponse object instead resData
@@ -35,6 +37,9 @@ export class AvailablePlacesComponent implements OnInit {
         next: (places) => {
           console.log(places);
           this.places.set(places);
+        },
+        complete: () => {
+          this.isFetching.set(false)
         }
       })
 
