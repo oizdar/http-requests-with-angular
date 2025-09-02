@@ -4,6 +4,7 @@ import { Place } from '../place.model';
 import { PlacesComponent } from '../places.component';
 import { PlacesContainerComponent } from '../places-container/places-container.component';
 import { HttpClient } from "@angular/common/http";
+import { map } from "rxjs";
 
 @Component({
   selector: 'app-available-places',
@@ -27,10 +28,13 @@ export class AvailablePlacesComponent implements OnInit {
         // observe: 'response' // to get full HttpResponse object instead resData
         // observe: 'events' // to get HttpEvent stream then in next function will get multiple events - will be triggered multiple times
       })
+      .pipe(
+        map((resData) => resData.places)
+      )
       .subscribe({
-        next: (resData) => {
-          console.log(resData);
-          this.places.set(resData.places);
+        next: (places) => {
+          console.log(places);
+          this.places.set(places);
         }
       })
 
