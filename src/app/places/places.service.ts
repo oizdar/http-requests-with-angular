@@ -29,9 +29,19 @@ export class PlacesService {
   }
 
   addPlaceToUserPlaces(place: Place) {
-    this.userPlaces.update(prevPlaces => [...prevPlaces, place]);
+    const prevPlaces = this.userPlaces();
+    if(!prevPlaces.some(p => p.id === place.id)) {
+      this.userPlaces.update(prevPlaces => [...prevPlaces, place]);
+    }
+
     return this.httpClient
       .put(this.backendUrl + '/user-places', { placeId: place.id })
+      .pipe(catchError((error) => {
+        console.log(error);
+        //send to analytics server
+        this.userPlaces.set(prevPlaces)
+        throw new Error("Something went wrong! Please try again later.");
+      }));
   }
 
   removeUserPlace(place: Place) {}
