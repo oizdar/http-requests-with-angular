@@ -56,4 +56,14 @@ export class AvailablePlacesComponent implements OnInit {
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe()); //technically not required but is a good practice is to always unsubscribe observables
   }
+
+  onSelectPlace(selectedPlace: Place) {
+    this.httpClient
+      .put("http://localhost:3000/user-places", { placeId: selectedPlace.id })
+      .subscribe({
+        next: (resData) => {
+          console.log(resData);
+        }
+      })
+  }
 }
