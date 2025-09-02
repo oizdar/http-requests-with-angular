@@ -4,7 +4,7 @@ import { Place } from '../place.model';
 import { PlacesComponent } from '../places.component';
 import { PlacesContainerComponent } from '../places-container/places-container.component';
 import { HttpClient } from "@angular/common/http";
-import { map } from "rxjs";
+import { catchError, map, throwError } from "rxjs";
 
 @Component({
   selector: 'app-available-places',
@@ -16,6 +16,7 @@ import { map } from "rxjs";
 export class AvailablePlacesComponent implements OnInit {
   places = signal<Place[] | undefined>(undefined);
   isFetching = signal(false);
+  error = signal('')
 
   constructor(
     private httpClient: HttpClient,
@@ -31,7 +32,12 @@ export class AvailablePlacesComponent implements OnInit {
         // observe: 'events' // to get HttpEvent stream then in next function will get multiple events - will be triggered multiple times
       })
       .pipe(
-        map((resData) => resData.places)
+        map((resData) => resData.places),
+        catchError((error) => {
+          console.log(error);
+          //send to analytics server
+          throw new Error("Something went wrong! Please try again later.");
+        })
       )
       .subscribe({
         next: (places) => {
@@ -40,7 +46,12 @@ export class AvailablePlacesComponent implements OnInit {
         },
         complete: () => {
           this.isFetching.set(false)
+        },
+        error: (error) => {
+          this.error.set(error.message);
+          this.isFetching.set(false)
         }
+
       })
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe()); //technically not required but is a good practice is to always unsubscribe observables
